@@ -1,0 +1,65 @@
+use anchor_lang::prelude::*;
+
+declare_id!("66NPzjUGYv3u2dkL7FtJge74gWxguJxrL9qVmywZhR7J");
+
+#[program]
+pub mod my_first_program {
+    use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count = 0;
+        counter.authority = ctx.accounts.user.key();
+        msg!("Counter initialized with count {}", counter.count);
+        Ok(())
+    }
+
+    pub fn increment(ctx: Context<Initialize>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count += 1;
+        msg!("Counter incremented to {}", counter.count);
+        Ok(())
+    }
+
+    pub fn decrement(ctx: Context<Initialize>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count -= 1;
+        msg!("Counter decremented to {}", counter.count);
+        Ok(())
+    }
+
+    pub fn reset(ctx: Context<Initialize>) -> Result<()> {
+        let counter= &mut ctx.accounts.counter;
+        counter.count = 0;
+        msg!("Counter reset to zero");
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        payer = user, 
+        space = 8 + 8 + 32
+    )]
+    pub counter: Account<'info, Counter>, 
+    #[account(mut)]
+    pub user: Signer<'info>, 
+    pub system_program: Program<'info, System>, 
+}
+
+#[derive(Accounts)]
+pub struct Update<'info> {
+    #[account(
+        mut,
+        has_one = authority
+    )]
+    pub counter: Account<'info, Counter>,
+    pub authority: Signer<'info> ,
+}
+#[account]
+pub struct Counter {
+    pub count: i64, 
+    pub authority: Pubkey, 
+}
