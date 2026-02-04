@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 declare_id!("66NPzjUGYv3u2dkL7FtJge74gWxguJxrL9qVmywZhR7J");
 
 #[program]
-pub mod my_first_program {
+pub mod counter {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
@@ -14,21 +14,21 @@ pub mod my_first_program {
         Ok(())
     }
 
-    pub fn increment(ctx: Context<Initialize>) -> Result<()> {
+    pub fn increment(ctx: Context<Update>) -> Result<()> {
         let counter = &mut ctx.accounts.counter;
         counter.count += 1;
         msg!("Counter incremented to {}", counter.count);
         Ok(())
     }
 
-    pub fn decrement(ctx: Context<Initialize>) -> Result<()> {
+    pub fn decrement(ctx: Context<Update>) -> Result<()> {
         let counter = &mut ctx.accounts.counter;
         counter.count -= 1;
         msg!("Counter decremented to {}", counter.count);
         Ok(())
     }
 
-    pub fn reset(ctx: Context<Initialize>) -> Result<()> {
+    pub fn reset(ctx: Context<Update>) -> Result<()> {
         let counter= &mut ctx.accounts.counter;
         counter.count = 0;
         msg!("Counter reset to zero");
@@ -53,7 +53,7 @@ pub struct Initialize<'info> {
 pub struct Update<'info> {
     #[account(
         mut,
-        has_one = authority
+        has_one = authority,
     )]
     pub counter: Account<'info, Counter>,
     pub authority: Signer<'info> ,
